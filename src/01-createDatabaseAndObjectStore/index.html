@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!--
+    Author: Rolando Caldas Sanchez
+    Blog: http://rolandocaldas.com/
+    Google+: https://plus.google.com/+RolandoCaldasSanchez
+    Linkedin: http://www.linkedin.com/in/rolandocaldas
+    Twitter: https://twitter.com/rolando_caldas
+    This file is part of an article:
+    http://rolandocaldas.com/html5/indexeddb-tu-base-de-datos-local-en-html5
+-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>IndexedDB: Local Database with HTML5</title>
+        <script type="text/javascript">
+            var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+            
+            function startDB() {
+                
+                var dataBase = indexedDB.open("object", 1);
+                
+                dataBase.onupgradeneeded = function (e) {
+                    
+                    var active = dataBase.result;
+                    var object = active.createObjectStore("people", { keyPath : 'id', autoIncrement : true });
+                    object.createIndex('by_name', 'name', { unique : false });
+                    object.createIndex('by_dni', 'dni', { unique : true });
+                    
+                };
+                                
+                dataBase.onsuccess = function (e) {
+                    alert('Database loaded');
+                };
+                
+                dataBase.onerror = function (e) {
+                    alert('Error loading database');
+                };
+                
+            }
+            
+        </script>
+    </head>
+    <body onload="startDB();">
+        <!-- 
+            @TODO
+        -->
+    </body>
+</html>
