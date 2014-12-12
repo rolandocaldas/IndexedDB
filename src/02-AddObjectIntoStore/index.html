@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!--
+    Author: Rolando Caldas Sanchez
+    Blog: http://rolandocaldas.com/
+    Google+: https://plus.google.com/+RolandoCaldasSanchez
+    Linkedin: http://www.linkedin.com/in/rolandocaldas
+    Twitter: https://twitter.com/rolando_caldas
+    This file is part of an article:
+    http://rolandocaldas.com/html5/indexeddb-agregando-objetos-al-almacen
+-->
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>IndexedDB: Local Database with HTML5</title>
+        <script type="text/javascript">
+            var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+            
+            var dataBase = null;
+            
+            function startDB() {
+                
+                dataBase = indexedDB.open('object', 1);
+                
+                dataBase.onupgradeneeded = function (e) {
+                    var active = dataBase.result;
+                    
+                    var object = active.createObjectStore("people", { keyPath : 'id', autoIncrement : true });
+                    object.createIndex('by_name', 'name', { unique : false });
+                    object.createIndex('by_dni', 'dni', { unique : true });
+                };
+                
+                dataBase.onsuccess = function (e) {
+                    alert('Database loaded');
+                };
+
+                dataBase.onerror = function (e) {
+                    alert('Error loading database');
+                };
+            }
+            
+            function add() {
+                
+                var active = dataBase.result;
+                var data = active.transaction(["people"], "readwrite");
+                var object = data.objectStore("people");
+                
+                var request = object.put({
+                    dni : document.querySelector("#dni").value,
+                    name : document.querySelector("#name").value,
+                    surname : document.querySelector("#surname").value
+                });
+                
+                request.onerror = function (e) {
+                    alert(request.error.name + '\n\n' + request.error.message);
+                };
+                
+                data.oncomplete = function (e) {
+                    document.querySelector('#dni').value = '';
+                    document.querySelector('#name').value = '';
+                    document.querySelector('#surname').value = '';
+                    alert('Object successfully added');
+                };
+            }
+        </script>
+    </head>
+    <body onload="startDB();">
+        <input type="text" id="dni" placeholder="Enter dni" />
+        <input type="text" id="name" placeholder="Enter name" />
+        <input type="text" id="surname" placeholder="Enter surname" />
+        <button type="button" onclick="add();">Save</button>
+    </body>
+</html>
